@@ -1,0 +1,202 @@
+# Factors
+Data often falls into a limited number of categories. For example, human hair color can be categorized as black, brown, blond, red, grey, or white—and perhaps a few more options for people who color their hair. In R, categorical data is stored in factors. 
+The term factor refers to a statistical data type used to store categorical variables. The difference between a categorical variable and a continuous variable is that a categorical variable can belong to a limited number of categories. A continuous variable, on the other hand, can correspond to an infinite number of values.
+
+It is important that R knows whether it is dealing with a continuous or a categorical variable, as the statistical models you will develop in the future treat both types differently. (You will see later why this is the case.)
+
+A good example of a categorical variable is sex. In many circumstances you can limit the sex categories to "Male" or "Female". (Sometimes you may need different categories. For example, you may need to consider chromosomal variation, hermaphroditic animals, or different cultural norms, but you will always have a finite number of categories.)
+
+To create factors in R, you make use of the function `factor()`. First thing that you have to do is create a vector that contains all the observations that belong to a limited number of categories. For example, `sex_vector` contains the sex of 5 different individuals:
+```{r}
+sex_vector <- c("Male","Female","Female","Male","Male")
+```
+It is clear that there are two categories, or in R-terms 'factor levels', at work here: "Male" and "Female".
+
+The function `factor()` will encode the vector as a factor:
+```{r}
+factor(sex_vector)
+```
+There are two types of categorical variables: a nominal categorical variable and an ordinal categorical variable.
+
+A nominal variable is a categorical variable without an implied order. This means that it is impossible to say that 'one is worth more than the other'. For example, think of the categorical variable animals_vector with the categories "Elephant", "Giraffe", "Donkey" and "Horse". Here, it is impossible to say that one stands above or below the other. (Note that some of you might disagree ;-) ).
+
+In contrast, ordinal variables do have a natural ordering. Consider for example the categorical variable temperature_vector with the categories: "Low", "Medium" and "High". Here it is obvious that "Medium" stands above "Low", and "High" stands above "Medium".
+```{r}
+# Animals
+animals_vector <- c("Elephant", "Giraffe", "Donkey", "Horse")
+factor_animals_vector <- factor(animals_vector)
+factor_animals_vector
+
+# Temperature
+temperature_vector <- c("High", "Low", "High","Low", "Medium")
+factor_temperature_vector <- factor(temperature_vector, order = TRUE, levels = c("Low", "Medium", "High"))
+factor_temperature_vector
+```
+When you first get a dataset, you will often notice that it contains factors with specific factor levels. However, sometimes you will want to change the names of these levels for clarity or other reasons. R allows you to do this with the function levels():
+```
+levels(factor_vector) <- c("name1", "name2",...)
+```
+Example-
+```{r}
+# Code to build factor_survey_vector
+survey_vector <- c("M", "F", "F", "M", "M")
+factor_survey_vector <- factor(survey_vector)
+
+# Specify the levels of factor_survey_vector
+levels(factor_survey_vector) <- c("Female", "Male")
+factor_survey_vector
+```
+Generate summary of both and see the difference-
+```{r}
+summary(survey_vector)
+summary(factor_survey_vector)
+```
+## Ordered factors
+Let us say that you are leading a research team of five data analysts and that you want to evaluate their performance. To do this, you track their speed, evaluate each analyst as "slow", "medium" or "fast", and save the results in `speed_vector`.
+```{r}
+# Create factor_speed_vector
+speed_vector <- c("medium", "slow", "slow", "medium", "fast")
+factor_speed_vector <- factor(speed_vector, ordered = TRUE, levels = c("slow", "medium", "fast"))
+
+# Factor value for second data analyst
+da2 <- factor_speed_vector[2]
+
+# Factor value for fifth data analyst
+da5 <- factor_speed_vector[5]
+
+# Is data analyst 2 faster than data analyst 5?
+da2 > da5
+```
+
+
+# Dates and Times
+
+In R, dates are represented by `Date` objects, while times are represented by `POSIXct` objects. Under the hood, however, these dates and times are simple numerical values. `Date` objects store the number of days since the 1st of January in 1970. `POSIXct` objects on the other hand, store the number of seconds since the _1st of January in 1970_.
+
+The 1st of January in 1970 is the common origin for representing times and dates in a wide range of programming languages. There is no particular reason for this; it is a simple convention.
+
+```{r}
+# Get the current date: today
+today <- Sys.Date()
+
+# See what today looks like under the hood
+unclass(today)
+
+# Get the current time: now
+now <- Sys.time()
+
+# See what now looks like under the hood
+unclass(now)
+```
+
+## Dates
+
+To create a Date object from a simple character string in R, you can use the `as.Date()` function. The character string has to obey a format that can be defined using a set of symbols (the examples correspond to 13 January, 1982):
+
+- %Y: 4-digit year (1982)
+- %y: 2-digit year (82)
+- %m: 2-digit month (01)
+- %d: 2-digit day of the month (13)
+- %A: weekday (Wednesday)
+- %a: abbreviated weekday (Wed)
+- %B: month (January)
+- %b: abbreviated month (Jan)
+
+The following R commands will all create the same Date object for the 13th day in January of 1982:
+```{r}
+as.Date("1982-01-13")
+as.Date("Jan-13-82", format = "%b-%d-%y")
+as.Date("13 January, 1982", format = "%d %B, %Y")
+```
+Notice that the first line here did not need a format argument, because by default R matches your character string to the formats `"%Y-%m-%d"` or `"%Y/%m/%d"`.
+
+In addition to creating dates, you can also convert dates to character strings that use a different date notation. For this, you use the `format()` function.
+
+Examples-
+
+```{r}
+# Definition of character strings representing dates
+str1 <- "May 23, '96"
+str2 <- "2012-03-15"
+str3 <- "30/January/2006"
+
+# Convert the strings to dates: date1, date2, date3
+date1 <- as.Date(str1, format = "%b %d, '%y")
+date2 <- as.Date(str2, format = "%Y-%m-%d")
+date3 <- as.Date(str3, format = "%d/%B/%Y")
+
+
+# Convert dates to formatted strings
+format(date1, "%A")
+format(date2, '%d')
+format(date3, '%b %Y')
+```
+
+## Create and format times
+
+Similar to working with dates, you can use `as.POSIXct()` to convert from a character string to a `POSIXct` object, and `format()` to convert from a `POSIXct` object to a character string. Again, you have a wide variety of symbols:
+
+- %H: hours as a decimal number (00-23)
+- %I: hours as a decimal number (01-12)
+- %M: minutes as a decimal number
+- %S: seconds as a decimal number
+- %T: shorthand notation for the typical format %H:%M:%S
+- %p: AM/PM indicator
+
+For a full list of conversion symbols, consult the strptime documentation in the console, by typing `?strptime`
+Again, `as.POSIXct()` uses a default format to match character strings. In this case, it's `%Y-%m-%d %H:%M:%S`.
+
+Examples-
+```{r}
+# Definition of character strings representing times
+str1 <- "May 23, '96 hours:23 minutes:01 seconds:45"
+str2 <- "2012-3-12 14:23:08"
+
+# Convert the strings to POSIXct objects: time1, time2
+time1 <- as.POSIXct(str1, format = "%B %d, '%y hours:%H minutes:%M seconds:%S")
+time2 <- as.POSIXct(str2, format = "%Y-%m-%d %H:%M:%S")
+
+# Convert times to formatted strings
+format(time1, '%M')
+format(time2, "%I:%M %p")
+```
+
+## Calculations with Dates
+
+Both `Date` and `POSIXct` R objects are represented by simple numerical values under the hood. This makes calculation with time and date objects very straightforward: R performs the calculations using the underlying numerical values, and then converts the result back to human-readable time information again.
+
+You can increment and decrement Date objects, or do actual calculations with them:
+```{r}
+today <- Sys.Date()
+today + 1
+today - 1
+
+as.Date("2015-03-12") - as.Date("2015-02-27")
+```
+
+Example-
+```{r}
+# Create vector pizza
+pizza <- as.Date(c("2022-05-10", "2022-05-12", "2022-05-17", "2022-05-23", "2022-05-28"))
+
+# Create differences between consecutive pizza days: day_diff
+day_diff <- diff(pizza)
+
+# Average period between two consecutive pizza days
+mean(day_diff)
+```
+## Calculations with Times
+
+Calculations using `POSIXct` objects are completely analogous to those using `Date` objects. Try to experiment with this code to increase or decrease `POSIXct` objects:
+```
+now <- Sys.time()
+now + 3600          # add an hour
+now - 3600 * 24     # subtract a day
+```
+Adding or subtracting time objects is also straightforward:
+```{r}
+birth <- as.POSIXct("1879-03-14 14:37:23")
+death <- as.POSIXct("1955-04-18 03:47:12")
+einstein <- death - birth
+einstein
+```
