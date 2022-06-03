@@ -1,0 +1,81 @@
+---
+title: "Benford Law"
+author: "Anil Goyal"
+date: "03/06/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Digit Analysis Using Benford's Law
+
+Natural guess
+
+Background
+
+Newcomb - 1881
+Benford - 1938
+
+Law
+$P(d=d_i)=log(1 + 1/d_i)$ where $d_i = 1..9$
+
+Plot
+```{r echo=FALSE}
+# Implement Benford's Law for first digit
+benlaw <- function(d) log10(1 + 1 / d)
+
+# Calculate expected frequency for d=5
+benlaw(5)
+
+# Create a dataframe of the 9 digits and their Benford's Law probabilities
+df <- data.frame(digit = 1:9, probability = benlaw(1:9))
+
+# Create barplot with expected frequencies
+ggplot(df, aes(x = digit, y = probability)) + 
+	geom_bar(stat = "identity", fill = "dodgerblue") + 
+	xlab("First digit") + ylab("Expected frequency") + 
+	scale_x_continuous(breaks = 1:9, labels = 1:9) + 
+	ylim(0, 0.33) + theme(text = element_text(size = 25))
+```
+
+Benford showed it on 20 different datasets
+
+Pickham later showed that law is invariant to scaling
+
+Another example (to be modified)
+
+```{r}
+# Load package benford.analysis
+library(benford.analysis)
+data(census.2009)
+
+# Check conformity
+bfd.cen <- benford(census.2009$pop.2009, number.of.digits = 1) 
+plot(bfd.cen, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F) 
+
+# Multiply the data by 3 and check conformity again
+data <- census.2009$pop.2009 * 3
+bfd.cen3 <- benford(data, number.of.digits=1)
+plot(bfd.cen3, except = c("second order", "summation", "mantissa", "chi squared","abs diff", "ex summation", "Legend"), multiple = F)
+```
+
+
+## Fraud detection
+
+Two digits
+
+examples
+
+
+Ref-
+
+ISACA JOURNAL ARCHIVES - [Understanding and Applying Benford’s Law - 1 May 2011](https://www.isaca.org/resources/isaca-journal/past-issues/2011/understanding-and-applying-benfords-law#:~:text=Digital%20analysis%20using%20Benford's%20Law,usefulness%20of%20using%20Benford's%20Law.)
+
+# Detecting outliers
+
+## Univariate
+
+## multivariate
