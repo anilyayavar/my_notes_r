@@ -38,7 +38,7 @@ ggplot(df, aes(x = digit, y = probability)) +
 	geom_bar(stat = "identity", fill = "dodgerblue") + 
 	xlab("First digit") + ylab("Expected frequency") + 
 	scale_x_continuous(breaks = 1:9, labels = 1:9) + 
-	ylim(0, 0.33) + theme(text = element_text(size = 25))
+	ylim(0, 0.33) + theme(text = element_text(size = 11))
 ```
 
 Benford showed it on 20 different datasets
@@ -72,7 +72,7 @@ examples
 
 Ref-
 
-ISACA JOURNAL ARCHIVES - [Understanding and Applying Benford’s Law - 1 May 2011](https://www.isaca.org/resources/isaca-journal/past-issues/2011/understanding-and-applying-benfords-law#:~:text=Digital%20analysis%20using%20Benford's%20Law,usefulness%20of%20using%20Benford's%20Law.)
+ISACA JOURNAL ARCHIVES - [Understanding and Applying Benford’s Law - 1 May 2011](https://www.isaca.org/resources/isaca-journal/past-issues/2011/understanding-and-applying-benfords-law)
 
 # Detecting outliers
 
