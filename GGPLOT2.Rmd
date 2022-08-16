@@ -1,0 +1,164 @@
+---
+title: "GGPLOT"
+author: "Team CDMA"
+date: "2022-07-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Aesthetics
+What if we wanted to alter the size, color or shape of the points? Probably unsurprisingly, these can all be changed within the aesthetics argument. After all, something’s aesthetic refers to how something looks. Thus, if you want to change the look of your graph, you’ll want to play around with the plot’s aesthetics.
+
+In fact, in the plots above you’ll notice that we specified what should be on the x and y axis within the aes() call. These are aesthetic mappings too! We were telling ggplot2 what to put on each axis, which will clearly affect how the plot looks, so it makes sense that these calls have to occur within aes(). Additionally now, we’ll focus on arguments within aes() that change how the points on the plot look.
+
+## Point color
+In the scatterplot we just generated, we saw that there was a relationship between carat and price, such that the more carats a diamond has, generally, the higher the price. But, it’s not a perfectly linear trend. What we mean by that is that not all diamonds that were 2 carats were exactly the same price. And, not all 3 carat diamonds were exactly the same price. What if we were interested in finding out a little bit more about why this is the case?
+
+Well, we could look at the clarity of the diamonds to see whether or not that affects the price of the diamonds? To add clarity to our plot, we could change the color of our points to differ based on clarity:
+```{r fig.cap="Fig: Changing point colors helps us better understand the data"}
+# adjusting color within aes
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price, color = clarity))
+```
+
+Here, we see that not only are the points now colored by clarity, ggplot2 has also automatically added a legend for us with the various classes and their corresponding point color.
+
+The Help pages of the diamonds dataset (accessed using ?diamonds) state that clarity is “a measurement of how clear the diamond is.” The documentation also tells us that I1 is the worst clarity and IF is the best (Full scale: I1, SI1, SI2, VS1, VS2, VVS1, VVS2, IF). This makes sense with what we see in the plot. Small (<1 carat) diamonds that have the best clarity level (IF) are some of the most expensive diamonds. While, relatively large diamonds (diamonds between 2 and 3 carats) of the lowest clarity (I1) tend to cost less.
+
+By coloring our points by a different variable in the dataset, we now understand our dataset better. This is one of the goals of data visualization! And, specifically, what we’re doing here in ggplot2 is known as mapping a variable to an aesthetic. We took another variable in the dataset, mapped it to a color, and then put those colors on the points in the plot. Well, we only told ggplot2 what variable to map. It took care of the rest!
+
+Of course, we can also manually specify the colors of the points on our graph; however, manually specifying the colors of points happens outside of the aes() call. This is because ggplot2 does not have to go through the mapping the variable to an aesthetic process. In the code here, ggplot2 doesn’t have to go through the trouble of figuring out which level of the variable is going to be which color on the plot (the mapping to the aesthetic part of the process). Instead, it just colors every point red. Thus, manually specifying the color of your points happens outside of aes():
+
+```{r fig.cap="Figure: manually specifying point color occurs outside of aes()"}
+# manually control color point outside aes
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price), color = "red") 
+```
+## Point size
+As above, we can change the point size by mapping another variable to the size argument within aes:
+
+```{r fig.cap="Figure: mapping to size changes point size on plot"}
+# adjust point size within aes
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price, size = clarity))
+```
+
+As above, ggplot2 handles the mapping process. All you have to do is specify what variable you want mapped (clarity) and how you want ggplot2 to handle the mapping (change the point size). With this code, you do get a warning when you run it in R that using a “discrete variable is not advised.” This is because mapping to size is usually done for numeric variables, rather than categorical variables like clarity.
+
+This makes sense here too. The relationship between clarity, carat, and price was easier to visualize when clarity was mapped to color than here where it is mapped to size.
+
+Like the above example with color, the size of every point can be changed by calling size outside of aes:
+```{r fig.cap="Figure: manually specifying point size of all points occurs outside of aes()"}
+# global control of point size
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price), size = 4.5)
+```
+
+Here, we have manually increased the size of all the points on the plot.
+
+## Point Shape
+You can also change the shape of the points (shape). We’ve used solid, filled circles thus far (the default in geom_point), but we could specify a different shape for each clarity.
+
+```{r fig.cap="Figure: mapping clarity to shape"}
+# map clarity to point shape within aes 
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price, shape = clarity))
+## Warning: Using shapes for an ordinal variable is not advised
+## Warning: The shape palette can deal with a maximum of 6 discrete values because
+## more than 6 becomes difficult to discriminate; you have 8. Consider
+## specifying shapes manually if you must have them.
+## Warning: Removed 5445 rows containing missing values (geom_point).
+```
+
+Here, while the mapping occurs correctly within ggplot2, we do get a warning message that discriminating more than six different shapes is difficult for the human eye. Thus, ggplot2 won’t allow more than six different shapes on a plot. This suggests that while you can do something, it’s not always the best to do that thing. Here, with more than six levels of clarity, it’s best to stick to mapping this variable to color as we did initially.
+
+To manually specify a shape for all the points on your plot, you would specify it outside of aes using one of the twenty-five different shape options available:
+
+For example, to plot all of the points on the plot as filled diamonds (it is a dataset about diamonds after all…), you would specify shape ‘18’:
+
+```{r}
+# global control of point shape outside aes
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price), shape = 18)
+```
+
+# Facets
+In addition to mapping variables to different aesthetics, you can also opt to use facets to help make sense of your data visually. Rather than plotting all the data on a single plot and visually altering the point size or color of a third variable in a scatterplot, you could break each level of that third variable out into a separate subplot. To do this, you would use faceting. Faceting is particularly helpful for looking at categorical variables.
+
+To use faceting, you would add an additional layer (+) to your code and use the facet_wrap() function. Within facet wrap, you specify the variable by which you want your subplots to be made:
+```{r}
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price)) + 
+  # facet by clarity
+  facet_wrap(~clarity, nrow = 2)
+```
+
+Now, we have eight different plots, one for each level of clarity, where we can see the relationship between diamond carats and price.
+
+You’ll note here we’ve opted to specify that we want 2 rows of subplots (nrow = 2). You can play around with the number of rows you want in your output to customize how your output plot appears.
+
+# Geoms
+Thus far in this lesson we’ve only looked at scatterplots, which means we’ve only called geom_point. However, there are many additional geoms that we could call to generate different plots. Simply, a geom is just a shape we use to represent the data. In the case of scatterplots, they don’t really use a geom since each actual point is plotted individually. Other plots, such as the boxplots, barplots, and histograms we described in previous lessons help to summarize or represent the data in a meaningful way, without plotting each individual point. The shapes used in these different types of plots to represent what’s going on in the data is that plot’s geom.
+
+To see exactly what we mean by geoms being “shapes that represent the data”, let’s keep using the diamonds dataset, but instead of looking at the relationship between two numeric variables in a scatterplot, let’s take a step back and take a look at a single numeric variable using a histogram.
+
+## Histograms: geom_histogram
+To review, histograms allow you to quickly visualize the range of values your variable takes and the shape of your data. (Are all the numbers clustered around center? Or, are they all at the extremes of the range? Somewhere in between? The answers to these questions describe the “shape” of the values of your variable.)
+
+For example, if we wanted to see what the distribution of carats was for these data, we could to the following.
+```{r fig.cap="Figure: histogram of carat shows range and shape"}
+# change geom_ to generate histogram
+ggplot(data = diamonds) + 
+  geom_histogram(mapping =  aes(carat))
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+The code follows what we’ve seen so far in this lesson; however, we’ve now called geom_histogram to specify that we want to plot a histogram rather than a scatterplot.
+
+Here, the rectangular boxes on the plot are geoms (shapes) that represent the number of diamonds that fall into each bin on the plot. Rather than plotting each individual point, histograms use rectangular boxes to summarize the data. This summarization helps us quickly understand what’s going on in our dataset.
+
+Specifically here, we can quickly see that most of the diamonds in the dataset are less than 1 carat. This is not necessarily something we could be sure of from the scatterplots generated previously in this lesson (since some points could have been plotted directly on top of one another). Thus, it’s often helpful to visualize your data in a number of ways when you first get a dataset to ensure that you understand the variables and relationships between variables in your dataset!
+
+## Barplots: geom_bar
+Barplots show the relationship between a set of numbers and a categorical variable. In the diamonds dataset, we may be interested in knowing how many diamonds there are of each cut of diamonds. There are five categories for cut of diamond. If we make a barplot for this variable, we can see the number of diamonds in each category.
+```{r fig.cap="Figure: diamonds barplot"}
+# geom_bar for bar plots
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(cut))
+```
+
+Again, the changes to the code are minimal. We are now interested in plotting the categorical variable cut and state that we want a bar plot, by including geom_bar().
+
+Here, we again use rectangular shapes to represent the data, but we’re not showing the distribution of a single variable (as we were with geom_histogram). Rather, we’re using rectangles to show the count (number) of diamonds within each category within cut. Thus, we need a different geom: geom_bar!
+
+## Boxplots: geom_boxplot
+Boxplots provide a summary of a numerical variable across categories. For example, if you were interested to see how the price of a diamond (a numerical variable) changed across different diamond color categories (categorical variable), you may want to use a boxplot. To do so, you would specify that using geom_boxplot:
+```{r}
+# geom_boxplot for boxplots
+ggplot(data = diamonds) + 
+  geom_boxplot(mapping = aes(x = color, y = price))
+```
+
+In the code, we see that again, we only have to change what variables we want to be included in the plot and the type of plot (or geom). We want to use `geom_boxplot()` to get a basic boxplot.
+
+n the figure itself we see that the median price (the black horizontal bar in the middle of each box represents the median for each category) increases as the diamond color increases from the worst category (J) to the best (D).
+
+Now, if you wanted to change the color of this boxplot, it would just take a small addition to the code for the plot you just generated.
+
+```{r fig.cap="Figure: diamonds boxplot with red fill"}
+# fill globally changes bar color outside aes
+ggplot(data = diamonds) + 
+  geom_boxplot(mapping = aes(x = color, y = price), 
+               fill = "red")
+```
+
+Here, by specifying the color “red” in the fill argument, you’re able to change the plot’s appearance. In the next lesson, we’ll go deeper into the many ways in which a plot can be customized within ggplot2!
+
+## Other plots
+While we’ve reviewed basic code to make a few common types of plots, there are a number of other plot types that can be made in ggplot2. These are listed in the online reference material for ggplot2 or can be accessed through RStudio directly. To do so, you would type ?geom_ into the Console in RStudio. A list of geoms will appear. You can hover your cursor over any one of these to get a short description.
+
+Or, you can select a geom from this list and click enter. After selecting a geom, such as geom_abline and hitting ‘Enter,’ the help page for that geom will pop up in the ‘Help’ tab at bottom right. Here, you can find more detailed information about the selected geom.
